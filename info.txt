@@ -1,0 +1,47 @@
+node version: 20.13.1
+java version: jdk-18.0.2.1 || diganti ke jdk-17
+npm version: 10.5.2
+react-native version 0.76.1
+
+# install react-native 
+# npx @react-native-community/cli init TiaApp
+
+# install vendor
+# yarn add (vendorname)
+
+# penambahan asset fonts:
+# react-native.config.js (copy paste saja dari yang sudah ada)
+# sesuaikan penamaan lokasi assets : (cth) assets: ['./src/assets/fonts']
+# jalankan dengan perintah command : 
+#    npx react-native-asset
+
+
+# penambahan saat menginstal svg agar dapat digunakan svg yang seperti ini:
+<View style={additionalStyles.ctnIcon}>
+  {focused && <HomeIconActive width="100%" height="100%" />}
+  {!focused && <HomeIcon width="100%" height="100%" />}
+</View>
+# install yarn add react-native-svg
+# kemudian install yarn add --dev react-native-svg-transformer
+# kemudian tambahkan pengaturan di metro.config.js agar jadi seperti ini:
+
+const defaultConfig = getDefaultConfig(__dirname);
+const { assetExts, sourceExts } = defaultConfig.resolver;
+
+const config = {
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
+    babelTransformerPath: require.resolve("react-native-svg-transformer")
+  },
+  resolver: {
+    assetExts: assetExts.filter((ext) => ext !== "svg"),
+    sourceExts: [...sourceExts, "svg"]
+  }
+};
+
+module.exports = mergeConfig(defaultConfig, config, config);
