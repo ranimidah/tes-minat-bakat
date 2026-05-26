@@ -85,6 +85,22 @@ function InputDataDiri() {
     isloading: false,
     data: [],
   });
+  const [errors, setErrors] = useState({
+    semester: '',
+    alamat: '',
+    nama: '',
+    nim: '',
+    idUser: '',
+    jk: '',
+    provinsi: '',
+    kota: '',
+    kecamatan: '',
+    kelurahan: '',
+    fakultas: '',
+    prodi: '',
+    layanan: '',
+    generasi: '',
+  });
 
   const handleDataProvinsi = async () => {
     try {
@@ -222,6 +238,27 @@ function InputDataDiri() {
   };
 
   const handleSubmit = async () => {
+    const newErrors = {
+      jk: !selected ? 'Jenis kelamin wajib dipilih' : '',
+      provinsi: !selectedProv ? 'Provinsi wajib dipilih' : '',
+      kota: !selectedKota ? 'Kota/Kabupaten wajib dipilih' : '',
+      kecamatan: !selectedKec ? 'Kecamatan wajib dipilih' : '',
+      kelurahan: !selectedKel ? 'Kelurahan wajib dipilih' : '',
+      fakultas: !selectedFakultas ? 'Fakultas wajib dipilih' : '',
+      prodi: !selectedProdi ? 'Program studi wajib dipilih' : '',
+      semester: !values.semester ? 'Semester wajib diisi' : '',
+      alamat: !values.alamat ? 'Alamat wajib diisi' : '',
+      layanan: !selectedLayanan ? 'Jenis layanan wajib dipilih' : '',
+      generasi: !selectedGen ? 'Generasi usia wajib dipilih' : '',
+    };
+
+    setErrors(prev => ({...prev, ...newErrors}));
+
+    const hasError = Object.values(newErrors).some(e => e !== '');
+    if (hasError) {
+      return;
+    }
+
     if (
       selected &&
       selectedProv &&
@@ -329,6 +366,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.jk && <Text style={styles.txtRed}>*{errors.jk}</Text>}
           </View>
 
           <View style={styles.mainWrapper}>
@@ -344,6 +382,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.provinsi && <Text style={styles.txtRed}>*{errors.provinsi}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Kota/Kabupaten</Text>
@@ -358,6 +397,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.kota && <Text style={styles.txtRed}>*{errors.kota}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Kecamatan</Text>
@@ -372,6 +412,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.kecamatan && <Text style={styles.txtRed}>*{errors.kecamatan}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Kelurahan</Text>
@@ -385,6 +426,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.kelurahan && <Text style={styles.txtRed}>*{errors.kelurahan}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Fakultas</Text>
@@ -399,6 +441,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.fakultas && <Text style={styles.txtRed}>*{errors.fakultas}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Program Studi</Text>
@@ -412,6 +455,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.prodi && <Text style={styles.txtRed}>*{errors.prodi}</Text>}
           </View>
           <Input
             label="Semester"
@@ -421,6 +465,7 @@ function InputDataDiri() {
             onChangeText={semester => {
               setValues({...values, semester});
             }}
+            error={errors.semester}
           />
           <Input
             label="Alamat Sekarang"
@@ -430,6 +475,7 @@ function InputDataDiri() {
             onChangeText={alamat => {
               setValues({...values, alamat});
             }}
+            error={errors.alamat}
           />
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Jenis Layanan</Text>
@@ -443,6 +489,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.layanan && <Text style={styles.txtRed}>*{errors.layanan}</Text>}
           </View>
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Generasi Usia</Text>
@@ -457,6 +504,7 @@ function InputDataDiri() {
               boxStyles={styles.boxStyle} //override default styles
               placeholder={'-- Pilih --'}
             />
+            {errors.generasi && <Text style={styles.txtRed}>*{errors.generasi}</Text>}
           </View>
           <Button
             label={'Simpan Data'}

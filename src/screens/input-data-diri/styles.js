@@ -36,4 +36,10 @@ export default StyleSheet.create({
     paddingVertical: moderateScale(40),
     marginBottom: moderateScale(20),
   },
+  txtRed: {
+    fontFamily: fonts.PoppinsRegular,
+    color: colors.red,
+    paddingTop: moderateScale(8),
+    fontSize: moderateScale(11),
+  },
 });

@@ -246,7 +246,6 @@ function UpdateDataDiri() {
         payload.append('DataSiswa[generasi_usia]', selectedGen);
 
         const res = await updateBiodata(payload, values.idUser);
-        console.log({res, id: values.id});
         if (res.statusCode == 200) {
           reset('bottomTabs', {screen: 'profile'});
           setValues({...values, isloading: false});
@@ -464,7 +463,6 @@ function UpdateDataDiri() {
               )}
             />
           </View>
-          {console.log(dataProfil?.generasi_usia)}
           <View style={styles.mainWrapper}>
             <Text style={styles.label}>Generasi Usia</Text>
             <SelectList

@@ -24,7 +24,7 @@ const CustomTransition = {
 
 const Router = () => {
   const [isLoading, setLoading] = useState(true);
-  const [initialRoute, setInitialRoute] = useState(null);
+  const [initialRoute, setInitialRoute] = useState('login');
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -33,7 +33,7 @@ const Router = () => {
         const nim = await AsyncStorage.getItem('nim');
 
         const res = await getCekLogin();
-        if (res.status == 'success') {
+        if (res?.status == 'success') {
           if (!idUser) {
             await AsyncStorage.setItem('idUser', JSON.stringify(res.id));
           }
@@ -52,6 +52,7 @@ const Router = () => {
         }
       } catch (error) {
         console.error('Failed to load data:', error);
+        setInitialRoute('login');
       } finally {
         setLoading(false);
       }
@@ -59,9 +60,9 @@ const Router = () => {
 
     initializeApp();
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 500);
   }, []);
 
   if (isLoading || !initialRoute) {

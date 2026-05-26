@@ -6,6 +6,7 @@ import {getJadwal} from '../../services';
 import {moderateScale} from 'react-native-size-matters';
 import moment from 'moment';
 import {navigate} from '../../config/navigationRef';
+import LoadingIndicator from '../../components/loading-indicator';
 
 function Schedule() {
   const [dataJadwal, setDataJadwal] = useState({
@@ -75,7 +76,7 @@ function Schedule() {
     );
   }
 
-  return (
+  return dataJadwal.isloading ? <LoadingIndicator color="blue" fullscreen /> : (
     <View style={styles.ctnRoot}>
       <View style={styles.ctnMain}>
         <FlatList

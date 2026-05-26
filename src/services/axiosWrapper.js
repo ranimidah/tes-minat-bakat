@@ -18,8 +18,8 @@ const request = options => {
    * Create an Axios Client with defaults
    */
   const requestHeaders = options.customHeaders || {
-    // 'Content-Type': 'multipart/form-data',
-    'Content-Type': 'application/json',
+    'Content-Type': 'multipart/form-data',
+    // 'Content-Type': 'application/json',
     Accept: 'application/json',
     'cache-control': 'no-cache',
   };

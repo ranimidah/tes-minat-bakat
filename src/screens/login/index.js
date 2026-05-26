@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {
   Image,
-  Linking,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import Button from '../../components/button';
 import {postLogin} from '../../services';
 import {navigate, reset} from '../../config/navigationRef';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ModalNotif from '../../components/modal-notif';
 
 const imgLogin = require('../../assets/images/image_login.png');
 const logo = require('../../assets/images/logo_ut.png');
@@ -24,10 +24,40 @@ function Login() {
     username: '',
     password: '',
   });
+  const [errors, setErrors] = useState({
+    username: '',
+    password: '',
+  });
+  const [errorUsername, setErrorUsername] = useState(false);
+  const [errorPassword, setErrorPassword] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogin = async () => {
     try {
       setValues({...values, isloading: true});
+
+      /** Validasi Input */
+      const isUsernameEmpty = !values.username;
+      const isPasswordEmpty = !values.password;
+      const isPasswordShort = values.password.length < 8;
+
+      setErrorUsername(isUsernameEmpty);
+      setErrorPassword(isPasswordEmpty || isPasswordShort);
+
+      if (isUsernameEmpty || isPasswordEmpty || isPasswordShort) {
+        setErrors({
+          username: isUsernameEmpty ? 'Username tidak boleh kosong' : '',
+          password: isPasswordEmpty
+            ? 'Password tidak boleh kosong'
+            : isPasswordShort
+            ? 'Password minimal 8 karakter'
+            : '',
+        });
+        setValues(prev => ({...prev, isloading: false}));
+        return;
+      }
+
+
       let payload = new FormData();
       payload.append('LoginApi[username]', values.username);
       payload.append('LoginApi[password]', values.password);
@@ -41,13 +71,37 @@ function Login() {
         } else {
           reset('inputDataDiri');
         }
+        setValues({...values, isloading: false});
+      } else if (res.status === 'error' && res.message == 'Sudah login') {
+        if (res.data.cek_biodata == 1) {
+          reset('bottomTabs');
+        } else {
+          reset('inputDataDiri');
+        }
       } else {
+        setModalVisible(true);
         setValues({...values, isloading: false});
       }
     } catch (err) {
       console.log('Error: ', err);
     }
   };
+
+  function modalNotif() {
+      return (
+        <ModalNotif
+          visible={modalVisible}
+          onDismis={() => {
+            setModalVisible(false);
+          }}
+          message="Username atau password salah, silahkan coba lagi!"
+          onPress={() => {
+            setModalVisible(false);
+          }}
+          type="info"
+        />
+      );
+    }
 
   return (
     <View style={styles.ctnRoot}>
@@ -69,6 +123,7 @@ function Login() {
             onChangeText={username => {
               setValues({...values, username});
             }}
+            error={errorUsername && errors.username}
           />
           <Input
             label="Password"
@@ -79,6 +134,7 @@ function Login() {
             onChangeText={password => {
               setValues({...values, password});
             }}
+            error={errorPassword && errors.password}
           />
           <TouchableOpacity
             style={styles.forgotStyle}
@@ -112,6 +168,7 @@ function Login() {
           </TouchableOpacity>
         </View> */}
       </ScrollView>
+      {modalNotif()}
     </View>
   );
 }

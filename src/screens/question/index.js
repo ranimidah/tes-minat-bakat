@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {BackHandler, Image, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, BackHandler, Image, Text, TouchableOpacity, View} from 'react-native';
 import styles from './styles';
 import {useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -257,6 +257,16 @@ function Question() {
             style={styles.nextBtn}
             onPress={async () => {
               const currentQuestion = dataUjian[currentIndex];
+
+              /** validasi jawaban choice */
+              if (!values.jawaban[currentIndex]) {
+                Alert.alert(
+                  'Belum ada jawaban',
+                  'Harap pilih jawaban terlebih dahulu sebelum melanjutkan.',
+                  [{text: 'OK'}],
+                );
+                return;
+              }
 
               if (currentQuestion && currentIndex < dataUjian.length - 1) {
                 /** Kirim jawaban ke backend */
