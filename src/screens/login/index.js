@@ -34,7 +34,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      setValues({...values, isloading: true});
+      setValues(prev => ({...prev, isloading: true}));
 
       /** Validasi Input */
       const isUsernameEmpty = !values.username;
@@ -57,7 +57,6 @@ function Login() {
         return;
       }
 
-
       let payload = new FormData();
       payload.append('LoginApi[username]', values.username);
       payload.append('LoginApi[password]', values.password);
@@ -71,7 +70,7 @@ function Login() {
         } else {
           reset('inputDataDiri');
         }
-        setValues({...values, isloading: false});
+        setValues(prev => ({...prev, isloading: false}));
       } else if (res.status === 'error' && res.message == 'Sudah login') {
         if (res.data.cek_biodata == 1) {
           reset('bottomTabs');
@@ -80,10 +79,11 @@ function Login() {
         }
       } else {
         setModalVisible(true);
-        setValues({...values, isloading: false});
+        setValues(prev => ({...prev, isloading: false}));
       }
     } catch (err) {
       console.log('Error: ', err);
+      setValues(prev => ({...prev, isloading: false}));
     }
   };
 
@@ -91,7 +91,7 @@ function Login() {
       return (
         <ModalNotif
           visible={modalVisible}
-          onDismis={() => {
+          onDismiss={() => {
             setModalVisible(false);
           }}
           message="Username atau password salah, silahkan coba lagi!"

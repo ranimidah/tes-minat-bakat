@@ -43,20 +43,21 @@ function Question() {
 
   const handleData = async () => {
     const data = await AsyncStorage.getItem('dataUjian' + id);
-    setDataUjian(JSON.parse(data));
+    setDataUjian(data ? JSON.parse(data) : []);
   };
 
   const handleSoalUjian = async (id, noUrut) => {
     try {
-      setSoal({...soal, isloading: true});
+      setSoal(prev => ({...prev, isloading: true}));
       const res = await getSoalUjian(id, noUrut);
       if (res.statusCode == 200) {
-        setSoal({...soal, data: res.data});
+        setSoal(prev => ({...prev, data: res.data, isloading: false}));
       } else {
-        setSoal({...soal, isloading: false});
+        setSoal(prev => ({...prev, isloading: false}));
       }
     } catch (err) {
       console.log('Error: ', err);
+      setSoal(prev => ({...prev, isloading: true}));
     }
   };
 
