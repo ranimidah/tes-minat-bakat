@@ -18,9 +18,31 @@ function ResetPassword() {
     nim: '',
     email: '',
   });
+  const [errors, setErrors] = useState({
+    nim: '',
+    email: '',
+  });
 
   const handleReset = async () => {
     try {
+
+      /** Validate input */
+      /** validasi format email */
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isEmailInvalid = values.email && !emailRegex.test(values.email);
+
+      const newErrors = {
+        nim: !values.nim ? 'NIM wajib diisi' : '',
+        email: !values.email ? 'Email wajib diisi' : isEmailInvalid ? 'Format email tidak valid' : '',
+      };
+
+      setErrors(prev => ({...prev, ...newErrors}));
+
+      const hasError = Object.values(newErrors).some(e => e !== '');
+      if (hasError) {
+        return;
+      }
+
       setValues({...values, isloading: true});
 
       const res = await postResetPassword(values.nim, values.email);
@@ -29,6 +51,8 @@ function ResetPassword() {
         setModalVisible(true);
         setValues({...values, isloading: false});
       } else {
+        setModalVisible(true);
+        setDataMessage('Terjadi Kesalahan, silakan coba lagi. Periksa kembali NIM dan email yang Anda masukkan.');
         setValues({...values, isloading: false});
       }
     } catch (err) {
@@ -69,6 +93,7 @@ function ResetPassword() {
             keyboardType="numeric"
             value={values.nim}
             onChangeText={nim => setValues({...values, nim})}
+            error={errors.nim}
           />
           <Input
             label="Email"
@@ -76,6 +101,7 @@ function ResetPassword() {
             keyboardType="email-address"
             value={values.email}
             onChangeText={email => setValues({...values, email})}
+            error={errors.email}
           />
           <Button
             label="Reset"

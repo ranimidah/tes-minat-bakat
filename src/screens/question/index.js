@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {BackHandler, Image, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, BackHandler, Image, Text, TouchableOpacity, View} from 'react-native';
 import styles from './styles';
 import {useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,20 +43,21 @@ function Question() {
 
   const handleData = async () => {
     const data = await AsyncStorage.getItem('dataUjian' + id);
-    setDataUjian(JSON.parse(data));
+    setDataUjian(data ? JSON.parse(data) : []);
   };
 
   const handleSoalUjian = async (id, noUrut) => {
     try {
-      setSoal({...soal, isloading: true});
+      setSoal(prev => ({...prev, isloading: true}));
       const res = await getSoalUjian(id, noUrut);
       if (res.statusCode == 200) {
-        setSoal({...soal, data: res.data});
+        setSoal(prev => ({...prev, data: res.data, isloading: false}));
       } else {
-        setSoal({...soal, isloading: false});
+        setSoal(prev => ({...prev, isloading: false}));
       }
     } catch (err) {
       console.log('Error: ', err);
+      setSoal(prev => ({...prev, isloading: true}));
     }
   };
 
@@ -257,6 +258,16 @@ function Question() {
             style={styles.nextBtn}
             onPress={async () => {
               const currentQuestion = dataUjian[currentIndex];
+
+              /** validasi jawaban choice */
+              if (!values.jawaban[currentIndex]) {
+                Alert.alert(
+                  'Belum ada jawaban',
+                  'Harap pilih jawaban terlebih dahulu sebelum melanjutkan.',
+                  [{text: 'OK'}],
+                );
+                return;
+              }
 
               if (currentQuestion && currentIndex < dataUjian.length - 1) {
                 /** Kirim jawaban ke backend */

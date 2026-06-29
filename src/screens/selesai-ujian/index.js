@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Image, ScrollView, Text, View} from 'react-native';
 import styles from './styles';
-import Header from '../../components/header';
 import Button from '../../components/button';
 import {getCekLogin, getHistory} from '../../services';
 import {reset} from '../../config/navigationRef';

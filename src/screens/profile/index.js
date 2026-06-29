@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import styles from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import IconPencil from '../../assets/svg/icon_pencil.svg';
 import {URL_PHOTO} from '../../config/static';
 import {navigate} from '../../config/navigationRef';
 import DocumentPicker from 'react-native-document-picker';
+import LoadingIndicator from '../../components/loading-indicator';
 
 const avatar = require('../../assets/images/avatar.jpg');
 
@@ -17,21 +18,28 @@ function Profile() {
   });
   const [images, setImages] = useState({});
   const [isloading, setLoading] = useState(false);
+  const [photoTimestamp, setPhotoTimestamp] = useState(Date.now());
+  const [localImage, setLocalImage] = useState(null);
 
   const handleProfil = async () => {
     try {
-      setDataProfil({...dataProfil, isloading: true});
+      setDataProfil(prev => ({...prev, isloading: true}));
       const idUser = await AsyncStorage.getItem('idUser');
-      setDataProfil({...dataProfil, idUser: idUser});
 
       const res = await getProfil(idUser);
       if (res.statusCode == 200) {
-        setDataProfil({...dataProfil, data: res.data, isloading: false});
+        setDataProfil(prev => ({
+          ...prev, 
+          data: res.data,
+          idUser: idUser,
+          isloading: false,
+        }));
       } else {
-        setDataProfil({...dataProfil, isloading: false});
+        setDataProfil(prev => ({...prev, isloading: false}));
       }
     } catch (err) {
       console.log('Error: ', err);
+      setDataProfil(prev => ({...prev, isloading: false}));
     }
   };
 
@@ -47,9 +55,9 @@ function Profile() {
         type: contentUri.type,
         size: contentUri.size,
       };
+      setLocalImage(source.uri);
       setImages(source);
-      // console.log(source);
-      handleUpdate(source);
+      await handleUpdate(source);
     } catch (error) {
       console.log('error: ', error);
     }
@@ -57,18 +65,16 @@ function Profile() {
 
   const handleUpdate = async source => {
     try {
-      setLoading(true);
       let payload = new FormData();
       payload.append('User[input_photo]', source);
 
       const idUser = await AsyncStorage.getItem('idUser');
       const res = await updatePhoto(payload, idUser);
 
-      if (res.statusCode == 200) {
-        handleProfil();
-        setLoading(false);
-      } else {
-        setLoading(false);
+      if (res.statusCode === 200) {
+        setPhotoTimestamp(Date.now());
+        await handleProfil(true);
+        setLocalImage(null);
       }
     } catch (err) {
       console.log('Error: ', err);
@@ -80,13 +86,17 @@ function Profile() {
   }, []);
 
   function imageProfil() {
+    if (localImage) {
+      return <Image source={{uri: localImage}} style={styles.avatarStyle} />;
+    }
+
     if (dataProfil?.data?.foto) {
       if (dataProfil?.data?.foto == URL_PHOTO) {
         return <Image source={avatar} style={styles.avatarStyle} />;
       }
       return (
         <Image
-          source={{uri: dataProfil?.data?.foto}}
+          source={{uri: `${dataProfil?.data?.foto}?t=${photoTimestamp}`, cache: 'reload'}}
           style={styles.avatarStyle}
         />
       );
@@ -94,7 +104,7 @@ function Profile() {
     return <Image source={avatar} style={styles.avatarStyle} />;
   }
 
-  return (
+  return dataProfil.isloading ? <LoadingIndicator color="blue" fullscreen /> : (
     <View style={styles.ctnRoot}>
       <ScrollView styles={styles.ctnMain} showsVerticalScrollIndicator={false}>
         <View style={styles.mainRoot}>

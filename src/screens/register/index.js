@@ -1,10 +1,6 @@
 import React, {useState} from 'react';
 import {
-  Alert,
   Image,
-  Linking,
-  Modal,
-  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -29,17 +25,43 @@ function Register() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalNotif, setModalNotif] = useState(false);
   const [dataMessage, setDataMessage] = useState('');
+  const [errors, setErrors] = useState({
+    nim: '',
+    nama: '',
+    email: '',
+  });
 
   const handleSubmit = async () => {
     try {
       setValues({...values, isloading: true});
+
+      /** Validasi Input */
+      const isNimEmpty = !values.nim;
+      const isNamaEmpty = !values.nama;
+      const isEmailEmpty = !values.email;
+
+      /** validasi format email */
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isEmailInvalid = values.email && !emailRegex.test(values.email);
+      setErrors({
+        nim: isNimEmpty ? 'NIM tidak boleh kosong' : '',
+        nama: isNamaEmpty ? 'Nama tidak boleh kosong' : '',
+        email: isEmailEmpty ? 'Email tidak boleh kosong' : isEmailInvalid ? 'Format email tidak valid' : '',
+      });
+
+      if (isNimEmpty || isNamaEmpty || isEmailEmpty || isEmailInvalid) {
+        setValues(prev => ({...prev, isloading: false}));
+        return;
+      }
+
+
       let payload = new FormData();
       payload.append('SignupForm[username]', values.nama);
       payload.append('SignupForm[name]', values.nim);
       payload.append('SignupForm[email]', values.email);
 
       const res = await postRegister(payload);
-      if (res.status == 'success') {
+      if (res.status === 'success') {
         setDataMessage(res.message);
         setModalVisible(true);
         setValues({...values, isloading: false});
@@ -100,12 +122,14 @@ function Register() {
             keyboardType="numeric"
             value={values.nim}
             onChangeText={nim => setValues({...values, nim})}
+            error={errors.nim}
           />
           <Input
             label="Nama Lengkap"
             placeholder="Masukkan nama lengkap"
             value={values.nama}
             onChangeText={nama => setValues({...values, nama})}
+            error={errors.nama}
           />
           <Input
             label="Email"
@@ -113,6 +137,7 @@ function Register() {
             keyboardType="email-address"
             value={values.email}
             onChangeText={email => setValues({...values, email})}
+            error={errors.email}
           />
           <Button
             label="Register"
